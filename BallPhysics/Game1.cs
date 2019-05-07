@@ -34,6 +34,11 @@ namespace BallPhysics
             graphics.PreferredBackBufferHeight = 800;
             graphics.PreferredBackBufferWidth = 1000;
             Content.RootDirectory = "Content";
+
+
+            //graphics.SynchronizeWithVerticalRetrace = false; //Vsync
+            //IsFixedTimeStep = true;
+            //TargetElapsedTime = System.TimeSpan.FromMilliseconds(1000.0f / targetFPS);
         }
 
         /// <summary>
