@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using C3.MonoGame;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace BallPhysics
 {
@@ -28,6 +29,8 @@ namespace BallPhysics
 
         Random RNG = new Random();
 
+        FrameCounter frameCounter = new FrameCounter();
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -36,8 +39,8 @@ namespace BallPhysics
             Content.RootDirectory = "Content";
 
 
-            //graphics.SynchronizeWithVerticalRetrace = false; //Vsync
-            //IsFixedTimeStep = true;
+            graphics.SynchronizeWithVerticalRetrace = false; //Vsync
+            IsFixedTimeStep = false;
             //TargetElapsedTime = System.TimeSpan.FromMilliseconds(1000.0f / targetFPS);
         }
 
@@ -94,7 +97,11 @@ namespace BallPhysics
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            
+
+            //Update FPS Count
+            frameCounter.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+
+
             // The active state from the last frame is now old
             lastMouseState = currentMouseState;
 
@@ -103,7 +110,7 @@ namespace BallPhysics
 
             if (lastMouseState.LeftButton == ButtonState.Released && currentMouseState.LeftButton == ButtonState.Pressed)
             {
-                greenBalls.Add(new Ball(BallTypes.Green, currentMouseState.Position.ToVector2(), RNG.Next(15, 30), applyGravity:true));
+                greenBalls.Add(new Ball(BallTypes.Green, currentMouseState.Position.ToVector2(), RNG.Next(15, 30), applyGravity: true));
             }
 
             if (lastMouseState.RightButton == ButtonState.Released && currentMouseState.RightButton == ButtonState.Pressed)
@@ -121,6 +128,7 @@ namespace BallPhysics
                 ball.Update(gameTime);
             }
 
+            Debug.Print("FPS: {0}", 1 / (float)gameTime.ElapsedGameTime.TotalSeconds);
 
             // TODO: Add your update logic here
 
@@ -152,6 +160,9 @@ namespace BallPhysics
 
             HUDSpriteBatch.Begin();
             HUDSpriteBatch.DrawString(HUDFont, explanationText, new Vector2(20, 20), Color.White);
+            HUDSpriteBatch.DrawString(HUDFont, "FPS: " + frameCounter.CurrentFramesPerSecond.ToString("0.0"), new Vector2(20, 40), Color.White);
+            HUDSpriteBatch.DrawString(HUDFont, "Average FPS: " + frameCounter.AverageFramesPerSecond.ToString("0.0"), new Vector2(20, 60), Color.White);
+
             HUDSpriteBatch.End();
 
             // TODO: Add your drawing code here

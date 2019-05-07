@@ -48,7 +48,7 @@ namespace BallPhysics
         {
 
             var ballColor = (Color)typeof(Color).GetProperty(Enum.GetName(typeof(BallTypes), BallType)).GetValue(null);
-            spriteBatch.DrawCircle(Center, Radius, 360, ballColor, thickness:Radius);
+            spriteBatch.DrawCircle(Center, Radius, 36, ballColor, thickness: Radius);
 
 
         }
