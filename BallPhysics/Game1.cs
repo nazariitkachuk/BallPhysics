@@ -110,12 +110,12 @@ namespace BallPhysics
 
             if (lastMouseState.LeftButton == ButtonState.Released && currentMouseState.LeftButton == ButtonState.Pressed)
             {
-                greenBalls.Add(new Ball(BallTypes.Green, currentMouseState.Position.ToVector2(), RNG.Next(15, 30), applyGravity: true));
+                greenBalls.Add(new Ball(BallTypes.Green, currentMouseState.Position.ToVector2(), RNG.Next(15, 30), mass: (float)(10 * RNG.NextDouble() + 1.0f), applyGravity: true));
             }
 
             if (lastMouseState.RightButton == ButtonState.Released && currentMouseState.RightButton == ButtonState.Pressed)
             {
-                redBalls.Add(new Ball(BallTypes.Red, currentMouseState.Position.ToVector2(), RNG.Next(30, 40)));
+                redBalls.Add(new Ball(BallTypes.Red, currentMouseState.Position.ToVector2(), RNG.Next(30, 40), mass:(float)(10*RNG.NextDouble() + 1.0f), applyGravity:false));
             }
 
 
