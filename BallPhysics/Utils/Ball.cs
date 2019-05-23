@@ -23,16 +23,18 @@ namespace BallPhysics
         public BallTypes BallType { get; set; }
         public float Mass { get; set; }
         public bool ApplyGravity { get; set; }
+        private int ballSegments = 36;
 
         Vector2 movementVector = Vector2.Zero;
 
-        public Ball(BallTypes ballType, Vector2 startPosition, float radius = 20.0f, float mass = 1.0f, bool applyGravity = false)
+        public Ball(BallTypes ballType, Vector2 startPosition, float radius = 20.0f, float mass = 1.0f, bool applyGravity = false, int ballSegments = 36)
         {
             BallType = ballType;
             Center = startPosition;
             Radius = radius;
             Mass = mass;
             ApplyGravity = applyGravity;
+            this.ballSegments = ballSegments;
         }
 
         public void Update(GameTime gameTime)
@@ -48,7 +50,7 @@ namespace BallPhysics
         {
 
             var ballColor = (Color)typeof(Color).GetProperty(Enum.GetName(typeof(BallTypes), BallType)).GetValue(null);
-            spriteBatch.DrawCircle(Center, Radius, 36, ballColor, thickness: Radius);
+            spriteBatch.DrawCircle(Center, Radius, ballSegments, ballColor, thickness: Radius);
 
 
         }
