@@ -6,11 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-// Starter code for implementing Goal-Based Vector Field Pathfinding
-// The explanation can be found at:
-// https://gamedevelopment.tutsplus.com/tutorials/understanding-goal-based-vector-field-pathfinding--gamedev-9007
-
-
 namespace BallPhysics
 {
     /// <summary>
@@ -23,18 +18,14 @@ namespace BallPhysics
         SpriteBatch HUDSpriteBatch;
 
         List<Ball> greenBalls;
-
-        Grid tileGrid;
-        Spawner ballSpawner;
+        List<Ball> redBalls;
 
         MouseState lastMouseState;
         MouseState currentMouseState;
 
-        Vector2 mousePosition = Vector2.Zero;
-
         SpriteFont HUDFont;
 
-        string explanationText = "All green balls have to 'chase' the mouse cursor";
+        string explanationText = "Press Left Mouse to place green balls, press Right Mouse to place red balls";
 
         Random RNG = new Random();
 
@@ -42,23 +33,15 @@ namespace BallPhysics
 
         public Game1()
         {
-            graphics = new GraphicsDeviceManager(this)
-            {
-                PreferredBackBufferHeight = 800,
-                PreferredBackBufferWidth = 1200
-            };
+            graphics = new GraphicsDeviceManager(this);
+            graphics.PreferredBackBufferHeight = 800;
+            graphics.PreferredBackBufferWidth = 1000;
             Content.RootDirectory = "Content";
 
-            // IF fixed framerate
-            //int targetFPS = 90;
-            //IsFixedTimeStep = true;
-            //graphics.SynchronizeWithVerticalRetrace = false; //Vsync
-            //TargetElapsedTime = System.TimeSpan.FromMilliseconds(1000.0f / targetFPS);
 
-
-            // ELSE (variable timestep)
             graphics.SynchronizeWithVerticalRetrace = false; //Vsync
             IsFixedTimeStep = false;
+            //TargetElapsedTime = System.TimeSpan.FromMilliseconds(1000.0f / targetFPS);
         }
 
         /// <summary>
@@ -72,11 +55,7 @@ namespace BallPhysics
             // TODO: Add your initialization logic here
 
             greenBalls = new List<Ball>();
-            ballSpawner = new Spawner(new Vector2(graphics.PreferredBackBufferWidth/2, graphics.PreferredBackBufferHeight/2), 
-                                        new Vector2(graphics.PreferredBackBufferWidth/8, graphics.PreferredBackBufferHeight/8), 1000);
-
-            int tileWidth = 25, tileHeight = 25;
-            tileGrid = new Grid(graphics.PreferredBackBufferWidth/tileWidth, graphics.PreferredBackBufferHeight / tileHeight, tileWidth, tileHeight);
+            redBalls = new List<Ball>();
 
             this.IsMouseVisible = true;
 
@@ -122,26 +101,36 @@ namespace BallPhysics
             //Update FPS Count
             frameCounter.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
 
-            ballSpawner.Update(gameTime, greenBalls);
-
 
             // The active state from the last frame is now old
             lastMouseState = currentMouseState;
 
             // Get the mouse state relevant for this frame
             currentMouseState = Mouse.GetState();
-            mousePosition = currentMouseState.Position.ToVector2();
 
-            // To make it easier clamp to window size
-            mousePosition.X = Math.Max(Math.Min(graphics.PreferredBackBufferWidth, mousePosition.X), 0);
-            mousePosition.Y = Math.Max(Math.Min(graphics.PreferredBackBufferHeight, mousePosition.Y), 0);
+            if (lastMouseState.LeftButton == ButtonState.Released && currentMouseState.LeftButton == ButtonState.Pressed)
+            {
+                greenBalls.Add(new Ball(BallTypes.Green, currentMouseState.Position.ToVector2(), RNG.Next(15, 30), applyGravity: true));
+            }
+
+            if (lastMouseState.RightButton == ButtonState.Released && currentMouseState.RightButton == ButtonState.Pressed)
+            {
+                redBalls.Add(new Ball(BallTypes.Red, currentMouseState.Position.ToVector2(), RNG.Next(30, 40)));
+            }
 
 
             foreach (var ball in greenBalls)
             {
                 ball.Update(gameTime);
             }
+            foreach (var ball in redBalls)
+            {
+                ball.Update(gameTime);
+            }
 
+            Debug.Print("FPS: {0}", 1 / (float)gameTime.ElapsedGameTime.TotalSeconds);
+
+            // TODO: Add your update logic here
 
             base.Update(gameTime);
         }
@@ -156,9 +145,12 @@ namespace BallPhysics
 
             spriteBatch.Begin();
 
-            tileGrid.Draw(spriteBatch);
-
             foreach (var ball in greenBalls)
+            {
+                ball.Draw(spriteBatch);
+            }
+
+            foreach (var ball in redBalls)
             {
                 ball.Draw(spriteBatch);
             }
@@ -168,12 +160,12 @@ namespace BallPhysics
 
             HUDSpriteBatch.Begin();
             HUDSpriteBatch.DrawString(HUDFont, explanationText, new Vector2(20, 20), Color.White);
-            HUDSpriteBatch.DrawString(HUDFont, "FPS: " + frameCounter.CurrentFramesPerSecond.ToString("0.0") + "   Average FPS: " + frameCounter.AverageFramesPerSecond.ToString("0.0"), new Vector2(20, 40), Color.White);
-            HUDSpriteBatch.DrawString(HUDFont, "Number of balls: " + greenBalls.Count, new Vector2(20, 60), Color.White);
-            HUDSpriteBatch.DrawString(HUDFont, "Mouse position: " + mousePosition, new Vector2(20, 80), Color.White);
+            HUDSpriteBatch.DrawString(HUDFont, "FPS: " + frameCounter.CurrentFramesPerSecond.ToString("0.0"), new Vector2(20, 40), Color.White);
+            HUDSpriteBatch.DrawString(HUDFont, "Average FPS: " + frameCounter.AverageFramesPerSecond.ToString("0.0"), new Vector2(20, 60), Color.White);
 
             HUDSpriteBatch.End();
 
+            // TODO: Add your drawing code here
 
             base.Draw(gameTime);
         }
