@@ -31,16 +31,21 @@ namespace BallPhysics
 
         FrameCounter frameCounter = new FrameCounter();
 
+        static int ScreenWidth = 1000;
+        static int ScreenHeight = 800;
+        public static float Gravity = 0.1f;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferHeight = 800;
-            graphics.PreferredBackBufferWidth = 1000;
+            graphics.PreferredBackBufferHeight = ScreenHeight;
+            graphics.PreferredBackBufferWidth = ScreenWidth;
             Content.RootDirectory = "Content";
 
 
             graphics.SynchronizeWithVerticalRetrace = false; //Vsync
-            IsFixedTimeStep = false;
+            //IsFixedTimeStep = false;
+
             //TargetElapsedTime = System.TimeSpan.FromMilliseconds(1000.0f / targetFPS);
         }
 
@@ -110,21 +115,50 @@ namespace BallPhysics
 
             if (lastMouseState.LeftButton == ButtonState.Released && currentMouseState.LeftButton == ButtonState.Pressed)
             {
-                greenBalls.Add(new Ball(BallTypes.Green, currentMouseState.Position.ToVector2(), RNG.Next(15, 30), applyGravity: true));
+                greenBalls.Add(new Ball(BallTypes.Green, currentMouseState.Position.ToVector2(), RNG.Next(15, 30), RNG.Next(4, 11), applyGravity: true));
             }
 
             if (lastMouseState.RightButton == ButtonState.Released && currentMouseState.RightButton == ButtonState.Pressed)
             {
-                redBalls.Add(new Ball(BallTypes.Red, currentMouseState.Position.ToVector2(), RNG.Next(30, 40)));
+                redBalls.Add(new Ball(BallTypes.Red, currentMouseState.Position.ToVector2(), RNG.Next(30, 40), RNG.Next(8, 25)));
             }
 
-
+            //prepare balls for checking collision
             foreach (var ball in greenBalls)
             {
-                ball.Update(gameTime);
+                ball.ballsToIgnoreOnCurrentCollision.Clear();
             }
             foreach (var ball in redBalls)
             {
+                ball.ballsToIgnoreOnCurrentCollision.Clear();
+            }
+
+            //check every-with-every collision, without repeatings
+            greenBalls.RemoveAll((ball) => ball.IsOutOfScreen(ScreenWidth, ScreenHeight));
+            foreach (var ball in greenBalls)
+            {
+                foreach (var gb in greenBalls)
+                {
+                    Ball.ApplyCollisionBetweenBalls(ball, gb);
+                }
+                foreach (var rb in redBalls)
+                {
+                    Ball.ApplyCollisionBetweenBalls(ball, rb);
+                }
+                ball.Update(gameTime);
+            }
+
+            redBalls.RemoveAll((ball) => ball.IsOutOfScreen(ScreenWidth, ScreenHeight));
+            foreach (var ball in redBalls)
+            {
+                foreach (var gb in greenBalls)
+                {
+                    Ball.ApplyCollisionBetweenBalls(ball, gb);
+                }
+                foreach (var rb in redBalls)
+                {
+                    Ball.ApplyCollisionBetweenBalls(ball, rb);
+                }
                 ball.Update(gameTime);
             }
 
